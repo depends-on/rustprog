@@ -1,39 +1,36 @@
 ---
-
-name: Build and test a PR
+name: Rust
 
 on:
+  push:
+    branches: [ "main", "first" ]
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches: [ "main", "first" ]
+
+env:
+  CARGO_TERM_COLOR: always
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Extract dependent PR
-        uses: leseb/depends-on-action@feat-rust
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Run build and test
-        run: |
-          cargo run
+    - uses: actions/checkout@v4
+    - name: Extract dependent PR
+      uses: leseb/depends-on-action@feat-rust
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
+    - name: Run program
+      run: cargo run --verbose
 
   check-all-dependencies-are-merged:
     runs-on: ubuntu-latest
     steps:
-
       - name: Extract dependent PR
         uses: leseb/depends-on-action@feat-rust
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           check-unmerged-pr: true
-
-...
